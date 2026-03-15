@@ -1,0 +1,17 @@
+{
+  "name": "voice-chat",
+  "version": "1.0.0",
+  "description": "Ücretsiz sesli sohbet uygulaması",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "ws": "^8.18.0",
+    "helmet": "^8.0.0",
+    "express-rate-limit": "^7.4.0",
+    "uuid": "^10.0.0"
+  }
+}

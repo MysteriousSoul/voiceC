@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Ücretsiz sesli sohbet uygulaması - Tarayıcıdan sesli görüşme yapın">
+  <title>Sesli Sohbet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- ─── Giriş Ekranı ─── -->
+  <div id="login-screen" class="screen active">
+    <div class="login-card">
+      <div class="logo">
+        <div class="logo-icon">🎙️</div>
+        <h1>Sesli Sohbet</h1>
+        <p class="subtitle">Ücretsiz ve güvenli sesli görüşme</p>
+      </div>
+      <div class="form-group">
+        <label for="username">Kullanıcı Adı</label>
+        <input type="text" id="username" placeholder="Adınızı girin..." maxlength="20" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label for="room-id">Oda Kodu</label>
+        <div class="room-input-group">
+          <input type="text" id="room-id" placeholder="Oda kodunu girin..." maxlength="30" autocomplete="off">
+          <button id="generate-room-btn" class="btn-icon" title="Rastgele oda kodu oluştur">🎲</button>
+        </div>
+      </div>
+      <button id="join-btn" class="btn-primary">Odaya Katıl</button>
+      <div id="login-error" class="error-msg"></div>
+    </div>
+  </div>
+
+  <!-- ─── Sohbet Odası ─── -->
+  <div id="room-screen" class="screen">
+    <header class="room-header">
+      <div class="room-info">
+        <span class="room-badge">🔒</span>
+        <span id="room-name" class="room-name"></span>
+        <span id="user-count" class="user-count">0</span>
+      </div>
+      <button id="leave-btn" class="btn-danger-sm">Ayrıl</button>
+    </header>
+
+    <main class="room-body">
+      <div id="users-grid" class="users-grid"></div>
+    </main>
+
+    <footer class="room-controls">
+      <button id="mic-btn" class="control-btn mic-on" title="Mikrofonu Kapat">
+        <span class="control-icon">🎙️</span>
+        <span class="control-label">Mikrofon</span>
+      </button>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
