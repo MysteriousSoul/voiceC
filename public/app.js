@@ -193,11 +193,25 @@
     pc.ontrack = (e) => {
       let audio = audioEls.get(targetId);
       if (!audio) {
-        audio = new Audio();
+        audio = document.createElement('audio');
         audio.autoplay = true;
+        
+        // Audio elementini DOM'a ekle (iOS ve bazı tarayıcılarda garbage collection / silinme sorununu çözer)
+        let container = document.getElementById('audio-container');
+        if (!container) {
+          container = document.createElement('div');
+          container.id = 'audio-container';
+          container.style.display = 'none';
+          document.body.appendChild(container);
+        }
+        container.appendChild(audio);
+        
         audioEls.set(targetId, audio);
       }
       audio.srcObject = e.streams[0];
+      
+      // Mobilde otomatik oynatmayı zorla
+      audio.play().catch(err => console.error("Otomatik oynatma engellendi:", err));
     };
 
     // ICE adayları
@@ -234,7 +248,11 @@
     const pc = peers.get(userId);
     if (pc) { pc.close(); peers.delete(userId); }
     const audio = audioEls.get(userId);
-    if (audio) { audio.srcObject = null; audioEls.delete(userId); }
+    if (audio) { 
+      audio.srcObject = null; 
+      if (audio.parentNode) audio.parentNode.removeChild(audio);
+      audioEls.delete(userId); 
+    }
   }
 
   // ─── Mikrofon ───
