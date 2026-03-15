@@ -25,6 +25,7 @@
   let isMuted = false;
   const peers = new Map();       // userId -> RTCPeerConnection
   const audioEls = new Map();    // userId -> <audio>
+  const candidateQueue = new Map(); // userId -> []
   let roomUsers = [];            // [{id, name, muted}]
 
   const ICE_SERVERS = [
@@ -134,6 +135,7 @@
         case 'offer': {
           const pc = createPeer(msg.senderId, false);
           await pc.setRemoteDescription(new RTCSessionDescription(msg.sdp));
+          
           const answer = await pc.createAnswer();
           await pc.setLocalDescription(answer);
           ws.send(JSON.stringify({
@@ -141,19 +143,33 @@
             targetId: msg.senderId,
             sdp: answer
           }));
+
+          const q = candidateQueue.get(msg.senderId) || [];
+          for (let c of q) pc.addIceCandidate(new RTCIceCandidate(c)).catch(()=>{});
+          candidateQueue.delete(msg.senderId);
+          
           break;
         }
 
         case 'answer': {
           const pc = peers.get(msg.senderId);
-          if (pc) await pc.setRemoteDescription(new RTCSessionDescription(msg.sdp));
+          if (pc) {
+            await pc.setRemoteDescription(new RTCSessionDescription(msg.sdp));
+            const q = candidateQueue.get(msg.senderId) || [];
+            for (let c of q) pc.addIceCandidate(new RTCIceCandidate(c)).catch(()=>{});
+            candidateQueue.delete(msg.senderId);
+          }
           break;
         }
 
         case 'ice-candidate': {
           const pc = peers.get(msg.senderId);
-          if (pc && msg.candidate) {
-            await pc.addIceCandidate(new RTCIceCandidate(msg.candidate));
+          if (pc && pc.remoteDescription && pc.remoteDescription.type) {
+            pc.addIceCandidate(new RTCIceCandidate(msg.candidate)).catch(()=>{});
+          } else {
+            const q = candidateQueue.get(msg.senderId) || [];
+            q.push(msg.candidate);
+            candidateQueue.set(msg.senderId, q);
           }
           break;
         }
@@ -290,6 +306,7 @@
     peers.forEach((pc, id) => closePeer(id));
     peers.clear();
     audioEls.clear();
+    candidateQueue.clear();
     if (localStream) {
       localStream.getTracks().forEach(t => t.stop());
       localStream = null;
